@@ -19,7 +19,15 @@ export default function Estudante() {
     const [senhaUsuario, setSenhaUsuario] = useState('');
     const [bairroUsuario, setBairroUsuario] = useState('');
     const [bioUsuario, setBioUsuario] = useState('');
-    const [idadeUsuario, setIdadeUsuario] = useState(''); // Novo estado para idade
+    const [idadeUsuario, setIdadeUsuario] = useState('');
+
+    // Estados de Edição de Perfil (UPDATE de Usuário)
+    const [editandoPerfil, setEditandoPerfil] = useState(false);
+    const [nomeEdit, setNomeEdit] = useState('');
+    const [emailEdit, setEmailEdit] = useState('');
+    const [senhaEdit, setSenhaEdit] = useState('');
+    const [bairroEdit, setBairroEdit] = useState('');
+    const [bioEdit, setBioEdit] = useState('');
 
     // Estados de Agendamento
     const [mentorId, setMentorId] = useState('');
@@ -93,6 +101,30 @@ export default function Estudante() {
                 setEstudanteLogado(res.data);
             })
             .catch(err => { console.error(err); alert('Erro ao cadastrar estudante.'); });
+    };
+
+    // UPDATE: Atualizar Perfil do Estudante
+    const handleAtualizarPerfil = (e) => {
+        e.preventDefault();
+        if (!estudanteLogado) return;
+
+        api.put(`/usuarios/${estudanteLogado.id}`, {
+            nome: nomeEdit,
+            email: emailEdit,
+            senha: senhaEdit,
+            bairro: bairroEdit,
+            bio: bioEdit
+        })
+            .then(res => {
+                alert('Perfil atualizado com sucesso!');
+                setEstudanteLogado(res.data);
+                setEditandoPerfil(false);
+                carregarDados();
+            })
+            .catch(err => {
+                console.error("Erro ao atualizar perfil:", err);
+                alert('Erro ao atualizar o perfil. Verifica os dados.');
+            });
     };
 
     const handleCadastrarAgendamento = (e) => {
@@ -234,11 +266,26 @@ export default function Estudante() {
                 ) : (
                     /* PAINEL LOGADO */
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#e2f0d9', padding: '15px 20px', borderRadius: '8px', marginBottom: '30px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#e2f0d9', padding: '15px 20px', borderRadius: '8px', marginBottom: '20px' }}>
                             <div>
                                 <strong>Conta Ativa:</strong> {estudanteLogado.nome} | <strong>Cidade e Estado:</strong> {estudanteLogado.bairro}
                             </div>
                             <div style={{ display: 'flex', gap: '10px' }}>
+                                <button
+                                    onClick={() => {
+                                        setEditandoPerfil(!editandoPerfil);
+                                        if (!editandoPerfil) {
+                                            setNomeEdit(estudanteLogado.nome || '');
+                                            setEmailEdit(estudanteLogado.email || '');
+                                            setSenhaEdit(estudanteLogado.senha || '');
+                                            setBairroEdit(estudanteLogado.bairro || '');
+                                            setBioEdit(estudanteLogado.bio || '');
+                                        }
+                                    }}
+                                    style={{ padding: '6px 12px', backgroundColor: '#ffc107', color: '#212529', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
+                                >
+                                    {editandoPerfil ? 'Cancelar Edição' : 'Editar Perfil'}
+                                </button>
                                 <button
                                     onClick={() => setEstudanteLogado(null)}
                                     style={{ padding: '6px 12px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
@@ -253,6 +300,38 @@ export default function Estudante() {
                                 </button>
                             </div>
                         </div>
+
+                        {/* FORMULÁRIO DE EDIÇÃO DE PERFIL (UPDATE) */}
+                        {editandoPerfil && (
+                            <section style={{ marginBottom: '30px', backgroundColor: '#fffbe6', padding: '20px', borderRadius: '8px', border: '1px solid #ffe58f' }}>
+                                <h3 style={{ marginTop: 0, color: '#d48806' }}>Atualizar Meus Dados de Estudante</h3>
+                                <form onSubmit={handleAtualizarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Nome Completo:</label>
+                                        <input type="text" value={nomeEdit} onChange={e => setNomeEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>E-mail:</label>
+                                        <input type="email" value={emailEdit} onChange={e => setEmailEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Senha:</label>
+                                        <input type="password" value={senhaEdit} onChange={e => setSenhaEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Cidade e Estado:</label>
+                                        <input type="text" value={bairroEdit} onChange={e => setBairroEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Biografia:</label>
+                                        <textarea value={bioEdit} onChange={e => setBioEdit(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <button type="submit" style={{ padding: '10px', backgroundColor: '#faad14', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                        Salvar Alterações
+                                    </button>
+                                </form>
+                            </section>
+                        )}
 
                         {/* AGENDAR NOVA MENTORIA */}
                         <section style={{ marginBottom: '40px', backgroundColor: '#f9f9f9', padding: '25px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>

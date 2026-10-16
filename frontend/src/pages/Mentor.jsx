@@ -18,7 +18,15 @@ export default function Mentor() {
     const [bio, setBio] = useState('');
     const [contato, setContato] = useState('');
     const [senha, setSenha] = useState('');
-    const [idadeMentor, setIdadeMentor] = useState(''); // Novo estado para idade
+    const [idadeMentor, setIdadeMentor] = useState('');
+
+    // Estados de Edição de Perfil (UPDATE de Mentor)
+    const [editandoPerfil, setEditandoPerfil] = useState(false);
+    const [nomeEdit, setNomeEdit] = useState('');
+    const [especialidadeEdit, setEspecialidadeEdit] = useState('');
+    const [bioEdit, setBioEdit] = useState('');
+    const [contatoEdit, setContatoEdit] = useState('');
+    const [senhaEdit, setSenhaEdit] = useState('');
 
     const carregarDados = () => {
         setLoading(true);
@@ -51,7 +59,6 @@ export default function Mentor() {
             const emailBanco = (m.email || '').trim().toLowerCase();
 
             const matchContato = contatoBanco === digitoLogin || emailBanco === digitoLogin;
-            // Valida a senha se ela vier na listagem; se o backend omitir a senha no GET, valida pelo contato/e-mail registado
             const matchSenha = !m.senha || String(m.senha) === String(senhaLogin);
 
             return matchContato && matchSenha;
@@ -89,6 +96,30 @@ export default function Mentor() {
                 setMentorLogado(res.data);
             })
             .catch(err => { console.error(err); alert('Erro ao cadastrar mentor.'); });
+    };
+
+    // UPDATE: Atualizar Perfil do Mentor
+    const handleAtualizarPerfil = (e) => {
+        e.preventDefault();
+        if (!mentorLogado) return;
+
+        api.put(`/mentores/${mentorLogado.id}`, {
+            nome: nomeEdit,
+            especialidade: especialidadeEdit,
+            bio: bioEdit,
+            contato: contatoEdit,
+            senha: senhaEdit
+        })
+            .then(res => {
+                alert('Perfil de mentor atualizado com sucesso!');
+                setMentorLogado(res.data);
+                setEditandoPerfil(false);
+                carregarDados();
+            })
+            .catch(err => {
+                console.error("Erro ao atualizar perfil de mentor:", err);
+                alert('Erro ao atualizar o perfil. Verifica os dados.');
+            });
     };
 
     // DELETE: Cancelar Mentoria pela visão do Mentor
@@ -177,11 +208,26 @@ export default function Mentor() {
                 ) : (
                     /* PAINEL LOGADO */
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#cce5ff', padding: '15px 20px', borderRadius: '8px', marginBottom: '30px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#cce5ff', padding: '15px 20px', borderRadius: '8px', marginBottom: '20px' }}>
                             <div>
                                 <strong>Mentor Ativo:</strong> {mentorLogado.nome} | <strong>Especialidade:</strong> {mentorLogado.especialidade} | <strong>Contato:</strong> {mentorLogado.contato}
                             </div>
                             <div style={{ display: 'flex', gap: '10px' }}>
+                                <button
+                                    onClick={() => {
+                                        setEditandoPerfil(!editandoPerfil);
+                                        if (!editandoPerfil) {
+                                            setNomeEdit(mentorLogado.nome || '');
+                                            setEspecialidadeEdit(mentorLogado.especialidade || '');
+                                            setBioEdit(mentorLogado.bio || '');
+                                            setContatoEdit(mentorLogado.contato || '');
+                                            setSenhaEdit(mentorLogado.senha || '');
+                                        }
+                                    }}
+                                    style={{ padding: '6px 12px', backgroundColor: '#ffc107', color: '#212529', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
+                                >
+                                    {editandoPerfil ? 'Cancelar Edição' : 'Editar Perfil'}
+                                </button>
                                 <button
                                     onClick={() => setMentorLogado(null)}
                                     style={{ padding: '6px 12px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
@@ -196,6 +242,38 @@ export default function Mentor() {
                                 </button>
                             </div>
                         </div>
+
+                        {/* FORMULÁRIO DE EDIÇÃO DE PERFIL (UPDATE) */}
+                        {editandoPerfil && (
+                            <section style={{ marginBottom: '30px', backgroundColor: '#fffbe6', padding: '20px', borderRadius: '8px', border: '1px solid #ffe58f' }}>
+                                <h3 style={{ marginTop: 0, color: '#d48806' }}>Atualizar Meu Perfil de Mentor</h3>
+                                <form onSubmit={handleAtualizarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Nome Completo:</label>
+                                        <input type="text" value={nomeEdit} onChange={e => setNomeEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Especialidade:</label>
+                                        <input type="text" value={especialidadeEdit} onChange={e => setEspecialidadeEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Biografia:</label>
+                                        <textarea value={bioEdit} onChange={e => setBioEdit(e.target.value)} rows="2" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>E-mail / Contato:</label>
+                                        <input type="text" value={contatoEdit} onChange={e => setContatoEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>Senha:</label>
+                                        <input type="password" value={senhaEdit} onChange={e => setSenhaEdit(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    </div>
+                                    <button type="submit" style={{ padding: '10px', backgroundColor: '#faad14', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                        Salvar Alterações
+                                    </button>
+                                </form>
+                            </section>
+                        )}
 
                         <section>
                             <h2>Agenda de Mentorias</h2>
