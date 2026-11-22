@@ -117,6 +117,7 @@ docker run --name mysql-raiztech -e MYSQL_ROOT_PASSWORD=suasenhasecreta -e MYSQL
 * **Integração com Google Meet:** Implementar geração automática de links de reuniões do Google Meet no momento em que um agendamento for realizado.
 * **Validação Rígida de Calendário:** Aprimorar as regras no front-end e back-end para bloquear o agendamento em datas e horários passados, permitindo selecionar apenas datas futuras.
 * **Otimização de SEO no Painel de Recursos:** Expandir a indexação das videoaulas e artigos educativos livres para atrair estudantes que buscam conteúdos de T.I. no Google, direcionando-os para os serviços de mentoria voluntária do site.
+* **Painel Administrativo para Gerenciamento de Conteúdos Educacionais:** Desenvolver uma interface administrativa que permita à equipe interna cadastrar, editar e excluir conteúdos educacionais gratuitos, como videoaulas, artigos e materiais de estudo, diretamente pela plataforma. Atualmente, a disponibilização desses recursos é realizada manualmente por meio de alterações no código-fonte, exigindo a intervenção dos desenvolvedores. Essa melhoria proporcionará maior autonomia à equipe, facilitará a atualização dos materiais e tornará o gerenciamento dos conteúdos mais ágil e eficiente.
 * **Autenticação Segura (JWT):** Adicionar Spring Security com validação por tokens JWT e criptografia de senhas.
 
 ---
