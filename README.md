@@ -125,6 +125,3 @@ docker run --name mysql-raiztech -e MYSQL_ROOT_PASSWORD=suasenhasecreta -e MYSQL
 
 Projeto desenvolvido para o programa **Recode Pro 2026**.
 ```
-eof
-
-Gerei o arquivo `README.md` completo com todas as modificações solicitadas. Basta incluir esse arquivo na raiz do repositório para a entrega do projeto no GitHub!
